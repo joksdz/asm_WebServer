@@ -33,11 +33,12 @@ gp: .skip 10240
 .section .text
 _start:
 
+### Dictionary
+#r9 is the socket fd 
+#r8 is the accept fd
 
 
-
-
-
+####
 
 ###
 mov rdi,2
@@ -109,7 +110,7 @@ lea rdi, [rip + gp]          #makes a copy of the buffer (i should remove this c
 mov rcx, 10240               
 rep movsb  
 
-lea rsi, [rip + post]
+lea rsi, [rip + post]dictionary
 lea rdi, [rip + gp]          #compares the first 4 bytes to POST
 mov rcx, 4
 repe cmpsb
@@ -121,7 +122,7 @@ mov rcx, 3
 repe cmpsb     
 je GET
 
-mov rdi, r8
+mov rdi, r/
 lea rsi, [rip + NO]         #fuck you 
 mov rdx, leno
 mov rax, 1
