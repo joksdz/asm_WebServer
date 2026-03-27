@@ -54,10 +54,10 @@ Place the files you want to serve (e.g. `index.html`) in the same directory as t
 - Buffer size is fixed at **10 KB** for both requests and file reads
 - No HTTPS / TLS support
 - Runs HTTP/1.0 only (no keep-alive)
-- Minimal error handling (doest check for file existence on get and always returns 200 ok lol )
+- Minimal error handling (doesn't check for file existence on get and always returns 200 ok lol )
 
 # Sources : 
 - https://pwn.college/computing-101/
 - https://man7.org/linux/man-pages/man2/
-- filippo.io/linux-syscall-table/
+- https://filippo.io/linux-syscall-table/
 - https://beej.us/guide/bgnet/pdf/bgnet_usl_c_1.pdf
