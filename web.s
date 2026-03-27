@@ -56,12 +56,12 @@ mov rax,0x901F0002
 push rax
 
 mov rsi,rsp
-mov rdx,16   #bind(3, {sa_family=AF_INET, sin_port=htons(80), sin_addr=inet_addr("0.0.0.0")}, 16)
+mov rdx,16   #bind(r9, {sa_family=AF_INET, sin_port=htons(80), sin_addr=inet_addr("0.0.0.0")}, 16)
 mov rax,49
 syscall
 ###
 mov rdi,r9
-mov rsi,0     # listen(3, 0)
+mov rsi,0     # listen(r9, 0)
 mov rax,50
 syscall
 ###
@@ -70,7 +70,7 @@ accept:
 mov rsi,0
 mov rdi,r9
 mov rdx,0
-mov rax,43 #accept(3, NULL, NULL) 
+mov rax,43 #accept(r9, NULL, NULL) 
 syscall
 
 mov r8,rax    #<- to save the new fd
@@ -91,12 +91,12 @@ jmp accept
 child:
 ###
 mov rax ,3
-mov rdi,r9            #close(3)
+mov rdi,r9            #close(r9)
 syscall
 
 ###                       #         |
 mov rdi,r8                #         v this is the buffer idk why it says that from the output :) 
-lea rsi,[rip + buffer]    #read(4, <read_request>, <read_request_count>) = <read_request_result> 
+lea rsi,[rip + buffer]    #read(r8, <read_request>, <read_request_count>) = <read_request_result> 
 mov rdx,10240             #                           ^ and this is the buffer size ,same thing idk why they called it that 
 mov rax,0                 #                           |
 syscall
@@ -105,24 +105,24 @@ mov r13,rax
 
 parse_GP:
 lea rsi, [rip + buffer]     
-lea rdi, [rip + gp]         
+lea rdi, [rip + gp]          #makes a copy of the buffer (i should remove this cuz i only used it for testing)
 mov rcx, 10240               
 rep movsb  
 
 lea rsi, [rip + post]
-lea rdi, [rip + gp]
+lea rdi, [rip + gp]          #compares the first 4 bytes to POST
 mov rcx, 4
 repe cmpsb
 je POST
 
 lea rsi, [rip + get]
-lea rdi, [rip + gp]   
+lea rdi, [rip + gp]         #compares the first 3 bytes to GET
 mov rcx, 3
 repe cmpsb     
 je GET
 
 mov rdi, r8
-lea rsi, [rip + NO]   
+lea rsi, [rip + NO]         #fuck you 
 mov rdx, leno
 mov rax, 1
 syscall
@@ -164,7 +164,7 @@ syscall
 ###
 
 mov rdi,r8
-lea rsi, [rip + toWrite]   #write(4,"HTTP/1.0 200 OK\r\n\r\n",19)
+lea rsi, [rip + toWrite]   #write(r8,"HTTP/1.0 200 OK\r\n\r\n",19)
 mov rdx,lenw                  #^ (this is the new fd saved in r8 created by the accept syscall)
 mov rax,1
 syscall
@@ -197,7 +197,7 @@ lea r14,[rip+gp]
 extract:
 xor ebx,ebx
 mov ebx,dword ptr[r14]
-cmp ebx,0x0a0d0a0d 
+cmp ebx,0x0a0d0a0d                # looks for \r\n\r\n in the http request (this pattern is always before the data so after it its just raw data)
 je POST_data
 add r14,1
 add r12,1
